@@ -128,6 +128,16 @@ class RBCChatbot:
             return {"response": random.choice(self.greetings), "sources": []}
         if any(word in query.lower() for word in ["thanks", "thank", "bye", "goodbye"]):
             return {"response": "You're welcome! Let me know if you have other questions.", "sources": []}
+        
+
+        # Check for repeated queries
+        if len(self.chat_history) >= 2 and self.chat_history[-2]["role"] == "user" and \
+            self.chat_history[-2]["content"].lower() == query.lower():
+            return {
+                "response": "I notice you've asked this question already. Let me try to provide more information or clarify my previous answer. " + 
+                    "Please let me know if you have a specific aspect you'd like me to elaborate on.",
+                "sources": []
+            }
 
         # 👇 Smarter redirection for quote requests
         lower_query = query.lower()
@@ -170,6 +180,7 @@ class RBCChatbot:
             response_text = random.choice(self.fallbacks)
         self.chat_history.append({"role": "assistant", "content": response_text})
         sources = [{"title": doc["title"], "url": doc["url"]} for doc in relevant_docs]
+
 
         return {"response": response_text, "sources": sources}
 
